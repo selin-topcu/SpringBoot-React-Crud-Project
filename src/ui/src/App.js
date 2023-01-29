@@ -2,19 +2,11 @@ import './App.css';
 import Container from './Container';
 import Footer from './Footer';
 import AddStudentForm from './forms/AddStudentForm'
-import {
-  getAllStudents
-} from './client.js'
-import {
-  Component
-} from 'react';
-import {
-  Table,
-  Avatar,
-  Spin,
-  Modal
-} from 'antd'
+import {getAllStudents} from './client.js'
+import {Component} from 'react';
+import {Table, Avatar, Spin, Modal, Empty} from 'antd'
 import { LoadingOutlined } from '@ant-design/icons';
+import { errorNotification } from './Notification';
 
 const getLoadingIcon = () => <LoadingOutlined style={{ fontSize: 24 }} spin />;
 class App extends Component {
@@ -41,12 +33,39 @@ class App extends Component {
         students,
         isFetching: false
       });
-    }));
+    }))
+    .catch(error=>{
+      this.setState({
+        isFetching: false
+      })
+    })
   }
   render() {
-
-
     const { students, isFetching, isAddStudentModalVisible } = this.state;
+
+    const commonElements = () => (
+        <div>
+          <Modal
+            title='Add new student'
+            visible={isAddStudentModalVisible}
+            onOk={this.closeAddStudentModal}
+            onCancel={this.closeAddStudentModal}
+            width={1000}
+          >
+
+            <AddStudentForm 
+            onSuccess={()=>{
+              this.closeAddStudentModal();
+              this.fetchStudents();
+            }}
+            />
+          </Modal>
+          <Footer
+            numberOfStudents={students.length}
+            addStudentClickEvent={this.openAddStudentModal}
+          ></Footer>
+        </div>
+    )
 
     if (isFetching) {
       return (<Container>
@@ -100,25 +119,17 @@ class App extends Component {
             columns={columns}
             rowKey='studentId'
             pagination={false} />
-          <Modal
-            title='Add new student'
-            visible={isAddStudentModalVisible}
-            onOk={this.closeAddStudentModal}
-            onCancel={this.closeAddStudentModal}
-            width={1000}
-          >
-
-            <AddStudentForm />
-          </Modal>
-          <Footer
-            numberOfStudents={students.length}
-            addStudentClickEvent={this.openAddStudentModal}
-          ></Footer>
+            {commonElements()}
         </Container>
       );
 
     }
-    return <h1>No Student Found</h1>
+    return (
+    <Container>
+      <Empty description={<h1>No Student Found</h1>}/>
+      {commonElements()}
+    </Container>
+      )
   }
 }
 
