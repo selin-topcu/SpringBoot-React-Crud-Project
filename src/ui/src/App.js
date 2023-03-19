@@ -6,7 +6,7 @@ import {getAllStudents} from './client.js'
 import {Component} from 'react';
 import {Table, Avatar, Spin, Modal, Empty} from 'antd'
 import { LoadingOutlined } from '@ant-design/icons';
-import { errorNotification } from './Notification';
+
 
 const getLoadingIcon = () => <LoadingOutlined style={{ fontSize: 24 }} spin />;
 class App extends Component {
@@ -27,7 +27,8 @@ class App extends Component {
     this.setState({
       isFetching: true
     });
-    getAllStudents().then(res => res.json().then(students => {
+    getAllStudents().then(res => res.json()
+    .then(students => {
       console.log(students);
       this.setState({
         students,
@@ -35,9 +36,10 @@ class App extends Component {
       });
     }))
     .catch(error=>{
-      this.setState({
-        isFetching: false
-      })
+      console.log(error);
+        this.setState({
+          isFetching: false
+        });
     })
   }
   render() {
@@ -47,7 +49,7 @@ class App extends Component {
         <div>
           <Modal
             title='Add new student'
-            visible={isAddStudentModalVisible}
+            open={isAddStudentModalVisible}
             onOk={this.closeAddStudentModal}
             onCancel={this.closeAddStudentModal}
             width={1000}
